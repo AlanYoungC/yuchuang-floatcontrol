@@ -1,0 +1,55 @@
+name: Build and Release APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build APK
+        run: ./gradlew assembleRelease
+
+      - name: Get version name
+        id: version
+        run: |
+          VERSION_NAME=$(grep "versionName" build.gradle | sed "s/.*versionName '\(.*\)'/\1/")
+          echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/outputs/apk/release/*.apk
+          name: Release ${{ steps.version.outputs.VERSION_NAME }}
+          body: |
+            ## 驭窗浮控 ${{ steps.version.outputs.VERSION_NAME }}
+
+            ### 更新内容
+            - 简洁无动画设计
+            - 媒体控制优化
+            - 夜间模式支持
+
+            ### 下载
+            下载 APK 文件并安装到 Android 设备
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
