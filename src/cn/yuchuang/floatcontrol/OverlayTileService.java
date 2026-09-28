@@ -16,6 +16,7 @@ public class OverlayTileService extends TileService {
 
     @Override public void onClick() {
         super.onClick();
+        Diagnostics.event("tile", "clicked", "running=" + OverlayService.isRunning());
         if (OverlayService.isRunning()) {
             stopService(new Intent(this, OverlayService.class));
             updateState(false);
@@ -36,6 +37,7 @@ public class OverlayTileService extends TileService {
             updateState(true);
         } catch (RuntimeException e) {
             Log.e("YuChuangOverlay", "Quick Settings could not start overlay", e);
+            Diagnostics.error("tile", "start_failed", e);
             Intent settings = new Intent(this, MainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 .putExtra("startOverlay", true);

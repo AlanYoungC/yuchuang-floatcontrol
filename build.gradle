@@ -1,0 +1,60 @@
+plugins {
+    id 'com.android.application' version '9.3.3'
+}
+
+android {
+    namespace 'cn.yuchuang.floatcontrol'
+    compileSdk 37
+    buildToolsVersion '37.0.0'
+
+    defaultConfig {
+        applicationId 'cn.yuchuang.floatcontrol'
+        minSdk 37
+        targetSdk 37
+        versionCode 33
+        versionName '1.9.16'
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['../carwindow/assets']
+        }
+    }
+
+    buildFeatures {
+        aidl true
+    }
+
+    signingConfigs {
+        local {
+            storeFile file('../experiment-signing.p12')
+            storePassword 'android'
+            keyAlias 'experiment'
+            keyPassword 'android'
+            storeType 'pkcs12'
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig signingConfigs.local
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation files('../deps/api.jar', '../deps/provider.jar', '../deps/aidl.jar',
+        '../deps/shared.jar')
+    compileOnly files('../deps/annotation.jar')
+    implementation 'androidx.metrics:metrics-performance:1.0.0'
+    implementation 'androidx.dynamicanimation:dynamicanimation:1.1.0'
+}
