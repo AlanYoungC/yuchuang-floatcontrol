@@ -1,0 +1,9 @@
+<resources>
+    <style name="FloatTheme" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">#5B9BFF</item>
+        <item name="android:windowBackground">@color/canvas</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>
