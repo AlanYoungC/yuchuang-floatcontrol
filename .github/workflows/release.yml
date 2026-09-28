@@ -23,9 +23,12 @@ jobs:
           distribution: 'temurin'
 
       - name: Install Android 17 SDK
-        run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager "platforms;android-37" "build-tools;37.0.0"
+        uses: android-actions/setup-android@v4
+        with:
+          packages: |
+            platform-tools
+            platforms;android-37
+            build-tools;37.0.0
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
