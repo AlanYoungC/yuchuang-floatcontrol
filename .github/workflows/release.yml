@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -20,13 +21,29 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.5.0'
 
-      - name: Make gradlew executable
-        run: chmod +x gradlew
+      - name: Create CI signing key
+        run: |
+          keytool -genkeypair \
+            -keystore "$RUNNER_TEMP/release.p12" \
+            -storetype PKCS12 \
+            -storepass android \
+            -keypass android \
+            -alias experiment \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=YuChuang Floating Control, O=YuChuang"
 
       - name: Build APK
-        run: ./gradlew assembleRelease
+        env:
+          ANDROID_SIGNING_STORE: ${{ runner.temp }}/release.p12
+          ANDROID_SIGNING_PASSWORD: android
+          ANDROID_SIGNING_ALIAS: experiment
+        run: gradle --no-daemon assembleRelease
 
       - name: Get version name
         id: version
@@ -35,20 +52,26 @@ jobs:
           echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_OUTPUT
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: build/outputs/apk/release/*.apk
           name: Release ${{ steps.version.outputs.VERSION_NAME }}
           body: |
             ## 驭窗浮控 ${{ steps.version.outputs.VERSION_NAME }}
 
-            ### 更新内容
-            - 简洁无动画设计
-            - 媒体控制优化
-            - 夜间模式支持
+            面向骑行和移动场景的轻量悬浮助手，将快捷应用、导航、媒体控制和运行状态集中在一个可贴边移动的悬浮界面中。
+
+            ### 本版内容
+            - 快捷应用、导航和音乐入口可独立排序
+            - 媒体会话实时同步，支持上一首、播放/暂停、下一首
+            - 常驻展开、自动收起、点击窗外收起和防误触保护
+            - 可调悬浮窗尺寸、图标尺寸、贴边位置、透明度和屏幕常亮
+            - 支持控制中心磁贴快速启停
+            - 支持通过 Shizuku 扩展系统日志采集，便于排查卡顿和异常
+            - 支持浅色、深色、强光高对比和磨砂玻璃悬浮样式
 
             ### 下载
-            下载 APK 文件并安装到 Android 设备
+            下载 APK 后安装到 Android 17（API 37）设备。首次使用需要授予悬浮窗权限；媒体控制需要通知使用权。
           draft: false
           prerelease: false
         env:

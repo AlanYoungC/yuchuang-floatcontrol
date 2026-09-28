@@ -21,7 +21,6 @@ android {
             java.srcDirs = ['src']
             aidl.srcDirs = ['src']
             res.srcDirs = ['res']
-            assets.srcDirs = ['../carwindow/assets']
         }
     }
 
@@ -29,19 +28,25 @@ android {
         aidl true
     }
 
-    signingConfigs {
-        local {
-            storeFile file('../experiment-signing.p12')
-            storePassword 'android'
-            keyAlias 'experiment'
-            keyPassword 'android'
-            storeType 'pkcs12'
-        }
-    }
+    def signingStore = providers.environmentVariable("ANDROID_SIGNING_STORE")
+        .orElse("../experiment-signing.p12").get()
+    def signingPassword = providers.environmentVariable("ANDROID_SIGNING_PASSWORD")
+        .orElse("android").get()
+    def signingAlias = providers.environmentVariable("ANDROID_SIGNING_ALIAS")
+        .orElse("experiment").get()
 
     buildTypes {
         release {
-            signingConfig signingConfigs.local
+            def store = file(signingStore)
+            if (store.exists()) {
+                signingConfig signingConfigs.create("releaseCi") {
+                    storeFile store
+                    storePassword signingPassword
+                    keyAlias signingAlias
+                    keyPassword signingPassword
+                    storeType 'pkcs12'
+                }
+            }
         }
     }
 
@@ -52,9 +57,8 @@ android {
 }
 
 dependencies {
-    implementation files('../deps/api.jar', '../deps/provider.jar', '../deps/aidl.jar',
-        '../deps/shared.jar')
-    compileOnly files('../deps/annotation.jar')
+    implementation 'dev.rikka.shizuku:api:13.1.5'
+    implementation 'dev.rikka.shizuku:provider:13.1.5'
     implementation 'androidx.metrics:metrics-performance:1.0.0'
     implementation 'androidx.dynamicanimation:dynamicanimation:1.1.0'
 }
