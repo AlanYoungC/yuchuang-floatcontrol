@@ -30,7 +30,12 @@ jobs:
           packages: ''
 
       - name: Install Android 17 SDK packages
-        run: sdkmanager --install "platforms;android-37.0" "build-tools;37.0.0"
+        run: |
+          sdkmanager --install "platforms;android-37.0" "build-tools;37.0.0"
+          SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+          if [ -d "$SDK_ROOT/platforms/android-37.0" ] && [ ! -e "$SDK_ROOT/platforms/android-37" ]; then
+            ln -s "$SDK_ROOT/platforms/android-37.0" "$SDK_ROOT/platforms/android-37"
+          fi
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
