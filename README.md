@@ -31,7 +31,7 @@
 gradle --no-daemon assembleRelease
 ```
 
-本地开发环境需要 Android API 37 SDK、JDK 17 和 Gradle 9.5。使用 `build.sh` 时，APK 会复制到工作区上级输出目录的 `outputs/驭窗浮控/驭窗浮控-1.8.8-API37.apk`。
+本地开发环境需要 Android API 37 SDK、JDK 17 和 Gradle 9.5。使用 `build.sh` 时，APK 会复制到工作区上级输出目录的 `outputs/驭窗浮控/驭窗浮控-1.8.8-API37.apk`。GitHub Actions 会使用 Android 17 SDK 自动构建并更新 `v1.8.8` Release。
 
 ## 许可
 
